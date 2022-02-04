@@ -46,6 +46,25 @@
                         ['centralAdminApi'],
                         function(CentralAdminApi)
                         {
+                            var autologin = geturlparam('loginId');
+
+                            if (
+                                !autologin
+                                && window.Storage !== 'undefined'
+                            ) {
+                                var visitorAge = parseInt(window.sessionStorage.getItem('verifiedAge'));
+                                var registrationAgeMinimum = parseInt('{{ global_en_config.getDatabaseConfig("registration_age_minimum", 21) }}');
+                                var getReferrer = geturlparam('referrer');
+
+                                if (
+                                    isNaN(visitorAge)
+                                    || visitorAge < registrationAgeMinimum
+                                ) {
+                                    window.location.href = '/verify' + ((typeof getReferrer !== 'undefined') ? '?referrer=' + getReferrer : '');
+                                    return;
+                                }
+                            }
+
                             (new CentralAdminApi).post(
                                 'getAvailableComponentThemeDisplay',
                                 {
